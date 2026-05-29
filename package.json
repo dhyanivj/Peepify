@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "gcloud run deploy peepify --source . --region us-east4"
   },
   "dependencies": {
     "@google/genai": "^2.7.0",
