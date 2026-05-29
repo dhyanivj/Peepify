@@ -1,49 +1,459 @@
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Patrick+Hand&display=swap');
+
+/* ==========================================================
+   HAND-DRAWN DOODLE DESIGN SYSTEM
+   Warm ink-on-paper light mode & chalk-on-blackboard dark mode
+   ========================================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  
+  /* Typography */
+  --font-header: 'Architects Daughter', cursive;
+  --font-body: 'Patrick Hand', sans-serif;
+  
+  /* Paper Sketch Colors */
+  --color-bg: #fafaf6;         /* Textured cream sketch paper */
+  --color-ink: #151515;        /* Dark ink marker */
+  --color-ink-variant: #444444;/* Faded ink */
+  --color-paper: #ffffff;      /* Bright white paper overlay */
+  --color-highlight: #ffeea3;  /* Translucent yellow highlighter */
+  --color-error: #cc3333;      /* Red ink */
+  --color-error-bg: #fdf2f2;
+  
+  /* Hand-drawn Stroke Settings */
+  --border-ink: 2.5px solid var(--color-ink);
+  --border-ink-thin: 1.5px solid var(--color-ink);
+  
+  /* Flat Solid Shadows (Hand-drawn look) */
+  --shadow-solid: 4px 4px 0px 0px var(--color-ink);
+  --shadow-solid-hover: 6px 6px 0px 0px var(--color-ink);
+  --shadow-solid-pressed: 1px 1px 0px 0px var(--color-ink);
+  
+  /* Custom Animations */
+  --motion-wiggle: sketch-wiggle 0.35s ease infinite alternate;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+[data-theme="dark"] {
+  color-scheme: dark;
+  
+  /* Blackboard Colors */
+  --color-bg: #1e1e1e;         /* Blackboard slate/charcoal */
+  --color-ink: #ffffff;        /* Chalk white */
+  --color-ink-variant: #cccccc;/* Soft chalk */
+  --color-paper: #282828;      /* Warm dark slate block */
+  --color-highlight: #4d4428;  /* Gold chalk highlight */
+  --color-error: #ff6666;      /* Orange-red chalk */
+  --color-error-bg: #351c1c;
+  
+  --border-ink: 2.5px solid var(--color-ink);
+  --border-ink-thin: 1.5px solid var(--color-ink);
+  --shadow-solid: 4px 4px 0px 0px var(--color-ink);
+  --shadow-solid-hover: 6px 6px 0px 0px var(--color-ink);
+  --shadow-solid-pressed: 1px 1px 0px 0px var(--color-ink);
 }
 
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* ==========================================================
+   RESET & WIREFRAME BASE
+   ========================================================== */
 * {
   box-sizing: border-box;
-  padding: 0;
   margin: 0;
+  padding: 0;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+html, body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 1.25rem; /* Patrick Hand is a compact font, 1.25rem (20px) is ideal */
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Custom hand-drawn scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+  border-left: var(--border-ink-thin);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-paper);
+  border: var(--border-ink-thin);
+  border-radius: 20px 4px 20px 4px/4px 20px 4px 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-highlight);
+}
+
+/* ==========================================================
+   TYPOGRAPHY & BANNER HEADERS
+   ========================================================== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-header);
+  font-weight: normal;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+p {
+  margin-bottom: 8px;
+}
+
+/* ==========================================================
+   SKETCHY LAYOUT PANELS (UNEVEN BORDERS)
+   ========================================================== */
+.sketch-card {
+  background-color: var(--color-paper);
+  border: var(--border-ink);
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px; /* Irregular sketched rectangle */
+  padding: 28px;
+  box-shadow: var(--shadow-solid);
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.sketch-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-solid-hover);
+}
+
+.sketch-card-thin {
+  background-color: var(--color-paper);
+  border: var(--border-ink-thin);
+  border-radius: 255px 20px 240px 10px/10px 240px 20px 255px;
+  padding: 20px;
+  box-shadow: 3px 3px 0px 0px var(--color-ink);
+}
+
+/* ==========================================================
+   SKETCHY BUTTONS & INTERACTIVES
+   ========================================================== */
+.sketch-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-family: var(--font-header);
+  font-size: 1.15rem;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  border: var(--border-ink);
+  border-radius: 30px 12px 25px 10px/10px 25px 12px 30px; /* Uneven sketchy rectangle */
+  box-shadow: var(--shadow-solid);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  position: relative;
+  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              background-color 0.2s ease;
+}
+.sketch-btn:hover {
+  animation: var(--motion-wiggle);
+  background-color: var(--color-highlight);
+  transform: translate(-1px, -1px);
+}
+.sketch-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: var(--shadow-solid-pressed);
+  animation: none;
+}
+.sketch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none !important;
+  transform: none !important;
+  box-shadow: var(--shadow-solid) !important;
+}
+
+/* Filled solid button option */
+.sketch-btn-filled {
+  background-color: var(--color-ink);
+  color: var(--color-bg);
+}
+.sketch-btn-filled:hover {
+  background-color: var(--color-ink-variant);
+  color: var(--color-bg);
+}
+
+/* Icon Buttons (Circular Doodle) */
+.sketch-circle-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-ink);
+  border-radius: 50% 45% 52% 48% / 48% 52% 45% 50%; /* Playful irregular circle */
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  box-shadow: 3px 3px 0px var(--color-ink);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s ease;
+  outline: none;
+}
+.sketch-circle-btn:hover {
+  animation: var(--motion-wiggle);
+  background-color: var(--color-highlight);
+  transform: translate(-1px, -1px);
+}
+.sketch-circle-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--color-ink);
+  animation: none;
+}
+
+/* ==========================================================
+   HEADER BANNER (RIBBON STYLE)
+   ========================================================== */
+.sketch-header {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 32px;
+  background-color: var(--color-paper);
+  border: var(--border-ink);
+  border-radius: 155px 6px 155px 6px/6px 155px 6px 155px; /* Subtle wavy paper ribbon */
+  margin: 24px 24px 0 24px;
+  box-shadow: var(--shadow-solid);
+  position: relative;
+}
+
+.sketch-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sketch-logo-icon {
+  font-family: var(--font-header);
+  font-weight: bold;
+  width: 40px;
+  height: 40px;
+  border: var(--border-ink);
+  border-radius: 50% 46% 54% 44% / 44% 54% 46% 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-ink);
+  color: var(--color-bg);
+  box-shadow: 2px 2px 0px var(--color-ink);
+  font-size: 1.3rem;
+}
+
+.sketch-logo-text {
+  font-family: var(--font-header);
+  font-size: 1.75rem;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+}
+
+/* ==========================================================
+   APP RESPONSIVE CANVAS GRID
+   ========================================================== */
+.sketch-container {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 40px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .sketch-container {
+    grid-template-columns: 1fr;
+    padding: 24px 16px;
+    gap: 32px;
   }
+}
+
+/* ==========================================================
+   DRAG AND DROP SKETCHZONE
+   ========================================================== */
+.sketch-upload-zone {
+  border: 3.5px dashed var(--color-ink);
+  border-radius: 16px 28px 16px 28px/28px 16px 28px 16px; /* Irregular box */
+  background-color: var(--color-paper);
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  box-shadow: var(--shadow-solid);
+}
+.sketch-upload-zone:hover, .sketch-upload-zone.drag-active {
+  background-color: var(--color-highlight);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-solid-hover);
+}
+
+.sketch-upload-preview-container {
+  position: relative;
+  border: var(--border-ink);
+  border-radius: 12px 18px 12px 18px/18px 12px 18px 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-solid);
+  background-color: var(--color-paper);
+}
+
+.sketch-upload-preview {
+  width: 100%;
+  max-height: 240px;
+  object-fit: contain;
+  display: block;
+}
+
+/* ==========================================================
+   CANVAS FRAMING & SHADOWING
+   ========================================================== */
+.sketch-canvas-frame {
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: var(--color-paper);
+  border: var(--border-ink);
+  border-radius: 8px 30px 10px 30px / 30px 8px 30px 10px; /* Big sketchy picture frame */
+  box-shadow: var(--shadow-solid);
+  overflow: hidden;
+  padding: 32px;
+  transition: transform 0.2s ease;
+}
+.sketch-canvas-frame:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-solid-hover);
+}
+
+.sketch-avatar-display {
+  max-width: 100%;
+  max-height: 380px;
+  border: var(--border-ink);
+  border-radius: 12px 18px 14px 20px / 20px 14px 18px 12px;
+  box-shadow: var(--shadow-solid);
+  object-fit: contain;
+  background-color: #ffffff; /* Avatars always look clean on white paper background */
+  transition: transform 0.2s ease;
+}
+.sketch-avatar-display:hover {
+  transform: scale(1.02) rotate(1deg);
+}
+
+/* ==========================================================
+   DOODLE LOADING SPINNER & SIMULATION
+   ========================================================== */
+.sketch-spinner {
+  width: 56px;
+  height: 56px;
+  border: 4.5px dashed var(--color-ink);
+  border-radius: 50% 48% 52% 46% / 46% 52% 48% 50%;
+  display: inline-block;
+  animation: sketch-rotate 1.8s linear infinite, var(--motion-wiggle);
+}
+
+@keyframes sketch-rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.sketch-shimmer-container {
+  width: 256px;
+  height: 256px;
+  border: var(--border-ink);
+  border-radius: 18px 12px 20px 14px/14px 20px 12px 18px;
+  background-color: var(--color-bg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 3px 3px 0px var(--color-ink);
+}
+.sketch-shimmer-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 40%,
+    rgba(255, 235, 163, 0.45) 50%,
+    transparent 60%
+  );
+  animation: sketch-shimmer-anim 2.5s infinite linear;
+}
+
+@keyframes sketch-shimmer-anim {
+  0% { transform: translate(-30%, -30%); }
+  100% { transform: translate(30%, 30%); }
+}
+
+/* Interactive doodle wiggle keyframes */
+@keyframes sketch-wiggle {
+  0% {
+    transform: rotate(-0.75deg) scale(0.995);
+  }
+  100% {
+    transform: rotate(0.75deg) scale(1.005);
+  }
+}
+
+.sketch-wiggle-hover:hover {
+  animation: var(--motion-wiggle);
+}
+
+/* ==========================================================
+   APP FOOTER
+   ========================================================== */
+.sketch-footer {
+  text-align: center;
+  padding: 24px;
+  font-family: var(--font-header);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  border-top: var(--border-ink);
+  background-color: var(--color-paper);
+  margin-top: auto;
+  box-shadow: 0px -4px 0px 0px var(--color-ink);
+}
+
+.sketch-error-box {
+  background-color: var(--color-error-bg);
+  border: var(--border-ink);
+  border-color: var(--color-error);
+  border-radius: 12px 8px 16px 6px/6px 16px 8px 12px;
+  padding: 20px;
+  color: var(--color-error);
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  box-shadow: 4px 4px 0px 0px var(--color-error);
+  text-align: center;
+  max-width: 100%;
 }
