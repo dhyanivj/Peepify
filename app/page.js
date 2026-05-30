@@ -783,7 +783,7 @@ export default function Home() {
       </main>
 
       <footer className="sketch-footer">
-        <p>Handcrafted using Next.js and Vertex Imagen  by <b>Vijay Dhyani</b> <br /> <small>Open Peeps Caricature Style by Pablo Stanley</small></p>
+        <p>Handcrafted using Next.js and Vertex Imagen  by <b>Vijay Dhyani</b> <br /> <small>Inspired by Open Peeps Caricature Style by Pablo Stanley</small></p>
       </footer>
 
       {/* Hand-Drawn Sketchy Gallery Modal Popup */}
