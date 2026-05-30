@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai';
+import { Storage } from '@google-cloud/storage';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
@@ -108,6 +109,8 @@ Write a single, very concise, comma-separated list of these key visual features.
 
     // Return the image as a base64 data URL
     const base64Image = `data:image/jpeg;base64,${image.imageBytes}`;
+
+
 
     return NextResponse.json({
       success: true,

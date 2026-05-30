@@ -11,6 +11,10 @@ export default function Home() {
   const [theme, setTheme] = useState("light");
   const [isDragging, setIsDragging] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [gallery, setGallery] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [isSavingToGallery, setIsSavingToGallery] = useState(false);
+  const [isSavedToGallery, setIsSavedToGallery] = useState(false);
 
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
@@ -71,6 +75,25 @@ export default function Home() {
         stream.getTracks().forEach(track => track.stop());
       }
     };
+  }, []);
+
+  const fetchGallery = async () => {
+    try {
+      setGalleryLoading(true);
+      const response = await fetch("/api/gallery");
+      const data = await response.json();
+      if (data.success) {
+        setGallery(data.avatars || []);
+      }
+    } catch (err) {
+      console.error("Failed to load gallery:", err);
+    } finally {
+      setGalleryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery();
   }, []);
 
   const startCamera = async () => {
@@ -157,6 +180,8 @@ export default function Home() {
 
   const removeReferenceImage = () => {
     setReferenceImage(null);
+    setIsSavedToGallery(false);
+    setIsSavingToGallery(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -173,6 +198,8 @@ export default function Home() {
     setLoading(true);
     setError("");
     setImageUrl("");
+    setIsSavedToGallery(false);
+    setIsSavingToGallery(false);
 
     try {
       const response = await fetch("/api/generate", {
@@ -192,6 +219,7 @@ export default function Home() {
       }
 
       setImageUrl(data.imageUrl);
+      fetchGallery(); // Refresh the drawing archives list instantly
     } catch (err) {
       console.error(err);
       setError(err.message || "An unexpected error occurred during image generation.");
@@ -208,6 +236,40 @@ export default function Home() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleSaveToGallery = async () => {
+    if (!imageUrl || !referenceImage || isSavingToGallery || isSavedToGallery) return;
+
+    setIsSavingToGallery(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/gallery/save", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          referenceImage,
+          avatarImage: imageUrl,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to save to gallery. Please try again.");
+      }
+
+      setIsSavedToGallery(true);
+      fetchGallery(); // Refresh polaroids instantly!
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "An unexpected error occurred while saving to gallery.");
+    } finally {
+      setIsSavingToGallery(false);
+    }
   };
 
   return (
@@ -555,7 +617,7 @@ export default function Home() {
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       onClick={handleDownload}
-                      className="sketch-btn sketch-btn-filled"
+                      className="sketch-btn"
                       title="Download Avatar"
                       style={{ padding: "6px 16px", fontSize: "1rem" }}
                     >
@@ -567,11 +629,128 @@ export default function Home() {
                       </svg>
                       Download
                     </button>
+
+                    <button
+                      onClick={handleSaveToGallery}
+                      disabled={isSavingToGallery || isSavedToGallery}
+                      className={`sketch-btn ${isSavedToGallery ? '' : 'sketch-btn-filled'}`}
+                      title={isSavedToGallery ? "Saved to Gallery" : "Save to Peep Gallery"}
+                      style={{ 
+                        padding: "6px 16px", 
+                        fontSize: "1rem",
+                        color: isSavedToGallery ? "var(--color-ink-variant)" : ""
+                      }}
+                    >
+                      {isSavingToGallery ? (
+                        <>
+                          <span className="sketch-spinner" style={{ width: "16px", height: "16px", borderWidth: "2px", marginRight: "6px", verticalAlign: "middle" }}></span>
+                          Saving...
+                        </>
+                      ) : isSavedToGallery ? (
+                        "Saved! ✓"
+                      ) : (
+                        <>
+                          {/* Save sketchy diskette icon */}
+                          <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                          </svg>
+                          Save to Gallery
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
             )}
           </div>
+        </section>
+
+        {/* Peep Gallery Polaroid Grid */}
+        <section className="sketch-card" style={{ gridColumn: "1 / -1", marginTop: "16px", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div>
+            <h2 style={{ fontSize: "1.8rem", borderBottom: "2px solid var(--color-ink)", paddingBottom: "6px", fontFamily: "var(--font-header)", display: "flex", alignItems: "center", gap: "10px" }}>
+              📖 The Peep Gallery
+            </h2>
+            <p style={{ fontSize: "1.05rem", color: "var(--color-ink-variant)", marginTop: "6px" }}>
+              Here are all the quirky characters generated by our pipeline. Click on any Polaroid photo to inspect the original reference photo and load the generated character!
+            </p>
+          </div>
+          
+          {galleryLoading && gallery.length === 0 ? (
+            <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center", padding: "30px" }}>
+              <span className="sketch-spinner" style={{ width: "24px", height: "24px", borderWidth: "2.5px" }}></span>
+              <span style={{ fontSize: "1.1rem" }}>Opening the sketching folders...</span>
+            </div>
+          ) : gallery.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--color-ink-variant)", fontSize: "1.15rem", border: "2px dashed var(--color-ink)", borderRadius: "8px" }}>
+              The archives are empty! Upload or capture a photo to draw the first Peep character and start the collection.
+            </div>
+          ) : (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+              gap: "24px",
+              padding: "10px 0"
+            }}>
+              {gallery.map((item, idx) => {
+                // Alternating tiny rotations to create a realistic hand-laid polaroid scatter!
+                const rot = (idx % 3 === 0) ? "-2.5deg" : (idx % 3 === 1) ? "2deg" : "-1deg";
+                return (
+                  <div 
+                    key={item.id}
+                    onClick={() => {
+                      setImageUrl(`/api/gallery/image/${item.id}?type=avatar`);
+                      setReferenceImage(`/api/gallery/image/${item.id}?type=ref`);
+                      setError("");
+                    }}
+                    className="sketch-wiggle-hover"
+                    style={{
+                      border: "var(--border-ink-thin)",
+                      borderRadius: "4px",
+                      padding: "10px 10px 28px 10px",
+                      backgroundColor: "#ffffff", // Pure white photo card paper
+                      boxShadow: "3px 3px 0px var(--color-ink)",
+                      cursor: "pointer",
+                      transition: "transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                      position: "relative",
+                      transform: `rotate(${rot})`,
+                    }}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img 
+                      src={`/api/gallery/image/${item.id}?type=avatar`}
+                      alt="Gallery Avatar"
+                      loading="lazy"
+                      style={{
+                        width: "100%",
+                        aspectRatio: "1/1",
+                        objectFit: "contain",
+                        border: "1.5px solid var(--color-ink)",
+                        borderRadius: "2px",
+                        backgroundColor: "#fafaf6",
+                      }}
+                    />
+                    <span style={{
+                      fontFamily: "var(--font-header)",
+                      fontSize: "0.8rem",
+                      color: "#000",
+                      position: "absolute",
+                      bottom: "6px",
+                      left: "0",
+                      right: "0",
+                      textAlign: "center",
+                      display: "block",
+                      letterSpacing: "-0.5px"
+                    }}>
+                      {new Date(item.updated).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       </main>
 
