@@ -607,8 +607,7 @@ p {
 }
 
 @media (max-width: 480px) {
-  /* Hide minor subtitles on small phones to maximize layout room */
-  .sketch-header .sketch-logo small,
+  /* Hide minor dashboard subtext on small phones to maximize layout room, but preserve author branding */
   .sketch-header .sketch-logo span[style*="font-size"] {
     display: none !important;
   }
