@@ -15,9 +15,12 @@ export default function Home() {
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [isSavingToGallery, setIsSavingToGallery] = useState(false);
   const [isSavedToGallery, setIsSavedToGallery] = useState(false);
+  const [selectedGalleryItem, setSelectedGalleryItem] = useState(null);
+  const [generatedId, setGeneratedId] = useState("");
 
   const fileInputRef = useRef(null);
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // Playful hand-drawn loading phrases
   const loadingPhrases = [
@@ -182,6 +185,7 @@ export default function Home() {
     setReferenceImage(null);
     setIsSavedToGallery(false);
     setIsSavingToGallery(false);
+    setGeneratedId("");
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -200,6 +204,16 @@ export default function Home() {
     setImageUrl("");
     setIsSavedToGallery(false);
     setIsSavingToGallery(false);
+    setGeneratedId("");
+
+    // Smooth scroll down to the drawing canvas on mobile screens with custom top spacing
+    setTimeout(() => {
+      if (canvasRef.current) {
+        const yOffset = -20; // 20px custom padding offset from viewport top
+        const y = canvasRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    }, 120);
 
     try {
       const response = await fetch("/api/generate", {
@@ -219,7 +233,7 @@ export default function Home() {
       }
 
       setImageUrl(data.imageUrl);
-      fetchGallery(); // Refresh the drawing archives list instantly
+      setGeneratedId(data.id);
     } catch (err) {
       console.error(err);
       setError(err.message || "An unexpected error occurred during image generation.");
@@ -232,14 +246,14 @@ export default function Home() {
     if (!imageUrl) return;
     const link = document.createElement("a");
     link.href = imageUrl;
-    link.download = `openpeeps-${Date.now()}.jpg`;
+    link.download = `peepify-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   const handleSaveToGallery = async () => {
-    if (!imageUrl || !referenceImage || isSavingToGallery || isSavedToGallery) return;
+    if (!generatedId || isSavingToGallery || isSavedToGallery) return;
 
     setIsSavingToGallery(true);
     setError("");
@@ -251,8 +265,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          referenceImage,
-          avatarImage: imageUrl,
+          id: generatedId,
         }),
       });
 
@@ -277,7 +290,7 @@ export default function Home() {
       <header className="sketch-header">
         <div className="sketch-logo">
           <div className="sketch-logo-icon">Pf</div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div className="sketch-logo-text-container">
             <h1 className="sketch-logo-text" style={{ marginBottom: "0px", lineHeight: "1" }}>Peepify</h1>
             <small style={{ fontSize: "0.85rem", color: "var(--color-ink-variant)", fontFamily: "var(--font-body)", marginTop: "2px", fontWeight: "normal" }}>by Vijay Dhyani</small>
           </div>
@@ -477,7 +490,7 @@ export default function Home() {
         </section>
 
         {/* Right Column: Sketch Canvas Picture Frame */}
-        <section style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        <section ref={canvasRef} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
           <div className="sketch-canvas-frame">
 
@@ -515,7 +528,19 @@ export default function Home() {
             {/* Loading State with Hand-drawn Spinner and shimmer container */}
             {loading && (
               <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
-                <span className="sketch-spinner"></span>
+                <div style={{ position: "relative", width: "72px", height: "72px" }}>
+                  <span className="sketch-spinner" style={{ width: "72px", height: "72px" }}></span>
+                  <div style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    fontSize: "1.85rem",
+                    animation: "sketch-pencil-draw 2s infinite ease-in-out"
+                  }}>
+                    ✏️
+                  </div>
+                </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <h3 style={{ fontSize: "1.45rem", color: "var(--color-ink)" }} className="sketch-wiggle-hover">
                     Doodling Avatar
@@ -524,8 +549,19 @@ export default function Home() {
                     {loadingMessage}
                   </p>
                 </div>
-                {/* Visual sketchy shimmer block */}
-                <div className="sketch-shimmer-container"></div>
+                {/* Themed Open Peeps hand-sketched animated SVG silhouette */}
+                <div className="sketch-shimmer-container" style={{ display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--color-bg)" }}>
+                  <svg viewBox="0 0 100 100" className="sketch-loader-peep">
+                    {/* Sketched head & torso outline */}
+                    <path d="M 50,22 C 38,22 34,28 34,38 C 34,44 38,48 38,52 C 35,55 30,58 20,68 C 15,73 12,82 12,88 L 88,88 C 88,82 85,73 80,68 C 70,58 65,55 62,52 C 62,48 66,44 66,38 C 66,28 62,22 50,22 Z" />
+                    {/* Sketchy hair outline detail */}
+                    <path d="M 36,32 C 40,26 48,25 54,25 C 60,25 63,28 65,33" />
+                    {/* Dot-and-line Peep features */}
+                    <circle cx="44" cy="40" r="2.5" fill="currentColor" />
+                    <circle cx="56" cy="40" r="2.5" fill="currentColor" />
+                    <path d="M 46,47 C 48,49 52,49 54,47" />
+                  </svg>
+                </div>
               </div>
             )}
 
@@ -598,23 +634,14 @@ export default function Home() {
                 </div>
 
                 {/* Bottom Canvas Toolbar */}
-                <div style={{
-                  width: "100%",
-                  height: "64px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  paddingTop: "16px",
-                  borderTop: "2px solid var(--color-ink)",
-                  marginTop: "8px"
-                }}>
-                  <div style={{ display: "flex", flexDirection: "column", maxWidth: "60%" }}>
-                    <span style={{ fontSize: "1rem", color: "var(--color-ink-variant)", textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
+                <div className="sketch-canvas-toolbar">
+                  <div className="sketch-canvas-toolbar-text-container" style={{ display: "flex", flexDirection: "column" }}>
+                    <span className="sketch-canvas-toolbar-text">
                       Hope you like it :)
                     </span>
                   </div>
 
-                  <div style={{ display: "flex", gap: "8px" }}>
+                  <div className="sketch-canvas-toolbar-actions">
                     <button
                       onClick={handleDownload}
                       className="sketch-btn"
@@ -635,8 +662,8 @@ export default function Home() {
                       disabled={isSavingToGallery || isSavedToGallery}
                       className={`sketch-btn ${isSavedToGallery ? '' : 'sketch-btn-filled'}`}
                       title={isSavedToGallery ? "Saved to Gallery" : "Save to Peep Gallery"}
-                      style={{ 
-                        padding: "6px 16px", 
+                      style={{
+                        padding: "6px 16px",
                         fontSize: "1rem",
                         color: isSavedToGallery ? "var(--color-ink-variant)" : ""
                       }}
@@ -656,7 +683,7 @@ export default function Home() {
                             <polyline points="17 21 17 13 7 13 7 21"></polyline>
                             <polyline points="7 3 7 8 15 8"></polyline>
                           </svg>
-                          Save to Gallery
+                          Save to Peep Gallery
                         </>
                       )}
                     </button>
@@ -674,10 +701,10 @@ export default function Home() {
               📖 The Peep Gallery
             </h2>
             <p style={{ fontSize: "1.05rem", color: "var(--color-ink-variant)", marginTop: "6px" }}>
-              Here are all the quirky characters generated by our pipeline. Click on any Polaroid photo to inspect the original reference photo and load the generated character!
+              Here are the latest quirky characters generated by our community. Click on any Polaroid photo to view it in detail and download your favorite doodles!
             </p>
           </div>
-          
+
           {galleryLoading && gallery.length === 0 ? (
             <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center", padding: "30px" }}>
               <span className="sketch-spinner" style={{ width: "24px", height: "24px", borderWidth: "2.5px" }}></span>
@@ -698,28 +725,29 @@ export default function Home() {
                 // Alternating tiny rotations to create a realistic hand-laid polaroid scatter!
                 const rot = (idx % 3 === 0) ? "-2.5deg" : (idx % 3 === 1) ? "2deg" : "-1deg";
                 return (
-                  <div 
+                  <div
                     key={item.id}
                     onClick={() => {
-                      setImageUrl(`/api/gallery/image/${item.id}?type=avatar`);
-                      setReferenceImage(`/api/gallery/image/${item.id}?type=ref`);
-                      setError("");
+                      setSelectedGalleryItem(item);
                     }}
                     className="sketch-wiggle-hover"
                     style={{
                       border: "var(--border-ink-thin)",
                       borderRadius: "4px",
-                      padding: "10px 10px 28px 10px",
+                      padding: "10px 10px 12px 10px",
                       backgroundColor: "#ffffff", // Pure white photo card paper
                       boxShadow: "3px 3px 0px var(--color-ink)",
                       cursor: "pointer",
                       transition: "transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
-                      position: "relative",
                       transform: `rotate(${rot})`,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "10px"
                     }}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
+                    <img
                       src={`/api/gallery/image/${item.id}?type=avatar`}
                       alt="Gallery Avatar"
                       loading="lazy"
@@ -734,17 +762,17 @@ export default function Home() {
                     />
                     <span style={{
                       fontFamily: "var(--font-header)",
-                      fontSize: "0.8rem",
+                      fontSize: "0.95rem",
                       color: "#000",
-                      position: "absolute",
-                      bottom: "6px",
-                      left: "0",
-                      right: "0",
                       textAlign: "center",
                       display: "block",
-                      letterSpacing: "-0.5px"
+                      letterSpacing: "-0.3px",
+                      fontWeight: "bold",
+                      width: "100%",
+                      wordBreak: "break-word",
+                      lineHeight: "1.2"
                     }}>
-                      {new Date(item.updated).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      {item.funnyName}
                     </span>
                   </div>
                 );
@@ -757,6 +785,130 @@ export default function Home() {
       <footer className="sketch-footer">
         <p>Handcrafted using Next.js and Vertex Imagen  by <b>Vijay Dhyani</b> <br /> <small>Open Peeps Caricature Style by Pablo Stanley</small></p>
       </footer>
+
+      {/* Hand-Drawn Sketchy Gallery Modal Popup */}
+      {selectedGalleryItem && (
+        <div
+          onClick={() => setSelectedGalleryItem(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.4)", // Translucent dark overlay (felt-tip marker shadow tone)
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px"
+          }}
+        >
+          {/* Modal Container */}
+          <div
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking card itself
+            className="sketch-card"
+            style={{
+              maxWidth: "460px",
+              width: "100%",
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "20px",
+              animation: "var(--motion-wiggle)", // Soft sketchy entry wiggle
+              backgroundColor: "var(--color-paper)"
+            }}
+          >
+            {/* Close Button Top Right */}
+            <div style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px dashed var(--color-ink)", paddingBottom: "10px" }}>
+              <h3 style={{ fontSize: "1.45rem", fontFamily: "var(--font-header)" }}>📖 {selectedGalleryItem.funnyName}</h3>
+              <button
+                onClick={() => setSelectedGalleryItem(null)}
+                className="sketch-circle-btn"
+                style={{ width: "32px", height: "32px", fontSize: "0.95rem" }}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Polaroid Display inside Modal */}
+            <div style={{
+              width: "100%",
+              border: "var(--border-ink)",
+              borderRadius: "12px 6px 12px 8px / 8px 12px 6px 12px",
+              overflow: "hidden",
+              background: "#ffffff",
+              padding: "16px 16px 36px 16px",
+              boxShadow: "var(--shadow-solid-hover)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              position: "relative"
+            }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/gallery/image/${selectedGalleryItem.id}?type=avatar`}
+                alt="Peep avatar full view"
+                style={{
+                  width: "100%",
+                  aspectRatio: "1/1",
+                  objectFit: "contain",
+                  border: "1.5px solid var(--color-ink)",
+                  borderRadius: "2px",
+                  backgroundColor: "#fafaf6"
+                }}
+              />
+              <span style={{
+                fontFamily: "var(--font-header)",
+                fontSize: "0.95rem",
+                color: "#000",
+                position: "absolute",
+                bottom: "8px",
+                textAlign: "center",
+                display: "block",
+                fontWeight: "bold"
+              }}>
+                Sketched on {new Date(selectedGalleryItem.updated).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
+            </div>
+
+            {/* Bottom Modal Actions */}
+            <div style={{ display: "flex", gap: "12px", width: "100%", justifyContent: "flex-end", marginTop: "4px" }}>
+              <button
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = `/api/gallery/image/${selectedGalleryItem.id}?type=avatar`;
+                  link.download = `peepify-avatar-${selectedGalleryItem.id}.jpg`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+                className="sketch-btn sketch-btn-filled"
+                style={{ flex: 1, padding: "8px 16px", fontSize: "1.05rem" }}
+              >
+                {/* Download icon */}
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "6px", verticalAlign: "middle" }}>
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Download
+              </button>
+              <button
+                onClick={() => setSelectedGalleryItem(null)}
+                className="sketch-btn"
+                style={{ padding: "8px 16px", fontSize: "1.05rem" }}
+              >
+                Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </>
   );
 }

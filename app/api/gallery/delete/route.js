@@ -8,11 +8,14 @@ export async function POST(request) {
 
     // Verify passcode for secure deletion authorization
     if (passcode !== correctPasscode) {
+      // Artificial delay to mitigate high-speed brute-force attacks
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       return NextResponse.json({ error: 'Unauthorized: Incorrect passcode.' }, { status: 401 });
     }
 
-    if (!id) {
-      return NextResponse.json({ error: 'Image ID is required for deletion.' }, { status: 400 });
+    // Strict validation of the ID parameter to prevent directory traversal or parameter tampering
+    if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(id)) {
+      return NextResponse.json({ error: 'Invalid Image ID format.' }, { status: 400 });
     }
 
     const project = process.env.GOOGLE_CLOUD_PROJECT;

@@ -165,8 +165,8 @@ export default function Dashboard() {
   // PASSCODE LOCK GATE UI
   if (!isAuthenticated) {
     return (
-      <div className="sketch-container" style={{ gridTemplateColumns: "1fr", maxWidth: "480px", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="sketch-card" style={{ width: "100%", padding: "40px 32px", textAlign: "center" }}>
+      <div className="sketch-container" style={{ gridTemplateColumns: "1fr", maxWidth: "480px", minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto", padding: "16px" }}>
+        <div className="sketch-card" style={{ width: "100%", padding: "36px 20px", textAlign: "center", boxSizing: "border-box" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
             <span className="sketch-logo-icon">🔒</span>
             <button
@@ -252,14 +252,14 @@ export default function Dashboard() {
       <header className="sketch-header">
         <div className="sketch-logo">
           <span className="sketch-logo-icon">📊</span>
-          <div>
+          <div className="sketch-logo-text-container">
             <h1 className="sketch-logo-text">Peepify Dashboard</h1>
             <span style={{ fontSize: "0.9rem", color: "var(--color-ink-variant)", fontFamily: "var(--font-header)" }}>
               Secure Moderation & Metrics
             </span>
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <div className="sketch-header-nav">
           <button
             onClick={toggleTheme}
             className="sketch-circle-btn"
@@ -439,7 +439,7 @@ export default function Dashboard() {
                   </p>
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "32px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
 
                   {images.map((img) => (
                     <div key={img.id} className="sketch-card" style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>

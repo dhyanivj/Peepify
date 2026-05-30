@@ -19,15 +19,43 @@ export async function GET() {
       prefix: 'gallery/',
     });
 
-    // We only care about the avatar files to list in the gallery
-    // Format: 'gallery/{id}-avatar.jpg'
+    const funnyAdjectives = [
+      'Snazzy', 'Dapper', 'Funky', 'Wobbly', 'Sassy', 'Snarky', 'Giggling', 'Sleepy', 
+      'Spunky', 'Cheeky', 'Jolly', 'Zesty', 'Loopy', 'Fluffy', 'Brainy', 'Crafty', 
+      'Dizzy', 'Goofy', 'Feisty', 'Chilled', 'Bouncy', 'Cranky', 'Quirky', 'Sparky'
+    ];
+
+    const funnyNouns = [
+      'Peep', 'Noodle', 'Pickle', 'Capybara', 'Koala', 'Avocado', 'Panda', 'Sloth', 
+      'Wizard', 'Muffin', 'Waffle', 'Taco', 'Penguin', 'Badger', 'Dino', 'Chimp', 
+      'Otter', 'Pug', 'Hedgehog', 'Cactus', 'Cupcake', 'Donut', 'Yeti', 'Gnome'
+    ];
+
+    const getDeterministicFunnyName = (id) => {
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) {
+        hash = id.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      hash = Math.abs(hash);
+      const adj = funnyAdjectives[hash % funnyAdjectives.length];
+      const noun = funnyNouns[Math.floor(hash / funnyAdjectives.length) % funnyNouns.length];
+      return `${adj} ${noun}`;
+    };
+
+    // We only care about the avatar files that have consented: 'true' (or no tag, which matches legacy files)
     const avatars = files
-      .filter(file => file.name.endsWith('-avatar.jpg'))
+      .filter(file => {
+        if (!file.name.endsWith('-avatar.jpg')) return false;
+        const consented = file.metadata?.metadata?.consented;
+        return consented === 'true' || consented === undefined;
+      })
       .map(file => {
         const id = file.name.split('/').pop().replace('-avatar.jpg', '');
+        const funnyName = file.metadata?.metadata?.funnyName || getDeterministicFunnyName(id);
         return {
           id: id,
           updated: file.metadata.updated || file.metadata.timeCreated,
+          funnyName: funnyName,
         };
       });
 

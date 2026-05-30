@@ -4,6 +4,12 @@ import { NextResponse } from 'next/server';
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
+
+    // Strict validation of the ID parameter to prevent directory traversal or parameter tampering
+    if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(id)) {
+      return new NextResponse('Invalid Image ID format.', { status: 400 });
+    }
+
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'avatar'; // Default to avatar, option: 'ref'
 
@@ -16,6 +22,8 @@ export async function GET(request, { params }) {
       const passcode = searchParams.get('passcode');
       const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
       if (passcode !== correctPasscode) {
+        // Artificial delay to mitigate high-speed brute-force attacks
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         return new NextResponse('Unauthorized: Access to original reference images is restricted.', { status: 401 });
       }
     }

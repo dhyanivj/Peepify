@@ -12,6 +12,9 @@ export async function POST(request) {
       });
     }
 
+    // Artificial delay to mitigate high-speed brute-force attacks
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     return NextResponse.json({
       success: false,
       error: 'Incorrect passcode!',

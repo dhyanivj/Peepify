@@ -13,6 +13,14 @@ export async function POST(request) {
       );
     }
 
+    // Limit payload size to avoid memory exhaustion or high bandwidth costs
+    if (referenceImage.length > 6 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: 'Reference photo payload is too large. Must be under 4MB.' },
+        { status: 400 }
+      );
+    }
+
     // Extract base64 payload and MIME type from data URL
     const mimeType = referenceImage.split(';')[0].split(':')[1] || 'image/jpeg';
     const base64Data = referenceImage.split(',')[1];
@@ -110,11 +118,65 @@ Write a single, very concise, comma-separated list of these key visual features.
     // Return the image as a base64 data URL
     const base64Image = `data:image/jpeg;base64,${image.imageBytes}`;
 
+    // 4. Securely upload the reference photo and generated avatar to GCS with consented: 'false'
+    const imageId = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    
+    const funnyAdjectives = [
+      'Snazzy', 'Dapper', 'Funky', 'Wobbly', 'Sassy', 'Snarky', 'Giggling', 'Sleepy', 
+      'Spunky', 'Cheeky', 'Jolly', 'Zesty', 'Loopy', 'Fluffy', 'Brainy', 'Crafty', 
+      'Dizzy', 'Goofy', 'Feisty', 'Chilled', 'Bouncy', 'Cranky', 'Quirky', 'Sparky'
+    ];
 
+    const funnyNouns = [
+      'Peep', 'Noodle', 'Pickle', 'Capybara', 'Koala', 'Avocado', 'Panda', 'Sloth', 
+      'Wizard', 'Muffin', 'Waffle', 'Taco', 'Penguin', 'Badger', 'Dino', 'Chimp', 
+      'Otter', 'Pug', 'Hedgehog', 'Cactus', 'Cupcake', 'Donut', 'Yeti', 'Gnome'
+    ];
+
+    const generateFunnyName = () => {
+      const adj = funnyAdjectives[Math.floor(Math.random() * funnyAdjectives.length)];
+      const noun = funnyNouns[Math.floor(Math.random() * funnyNouns.length)];
+      return `${adj} ${noun}`;
+    };
+
+    const funnyName = generateFunnyName();
+
+    try {
+      const storage = new Storage({
+        projectId: project,
+      });
+      const bucketName = `${project}-source-bucket`;
+      const bucket = storage.bucket(bucketName);
+
+      const uploadFile = async (dataBuffer, destFilename, customMetadata = {}) => {
+        const file = bucket.file(destFilename);
+        await file.save(dataBuffer, {
+          metadata: { 
+            contentType: 'image/jpeg',
+            metadata: customMetadata
+          },
+        });
+      };
+
+      // Convert buffers for upload
+      const refBuffer = Buffer.from(base64Data, 'base64');
+      const avatarBuffer = Buffer.from(image.imageBytes, 'base64');
+
+      // Upload both files immediately (saved to GCS for admin dashboard analytics)
+      await Promise.all([
+        uploadFile(refBuffer, `gallery/${imageId}-ref.jpg`),
+        uploadFile(avatarBuffer, `gallery/${imageId}-avatar.jpg`, { consented: 'false', funnyName })
+      ]);
+      console.log(`Successfully archived generated pair in GCS under ID: ${imageId}`);
+    } catch (gcsError) {
+      console.error('Failed to auto-archive images to GCS:', gcsError);
+    }
 
     return NextResponse.json({
       success: true,
       imageUrl: base64Image,
+      id: imageId,
+      funnyName: funnyName,
       prompt: finalPrompt,
       model: 'imagen-3.0-generate-002',
     });

@@ -9,6 +9,8 @@ export async function GET(request) {
     const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
 
     if (passcode !== correctPasscode) {
+      // Artificial delay to mitigate high-speed brute-force attacks
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       return NextResponse.json({ error: 'Unauthorized: Incorrect passcode.' }, { status: 401 });
     }
 
