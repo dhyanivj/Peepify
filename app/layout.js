@@ -14,7 +14,7 @@ export const metadata = {
     locale: "en_US",
     images: [
       {
-        url: "https://i.ibb.co/ymrwDC6C/image.png",
+        url: "https://i.ibb.co/0jwn6Vk9/Gemini-Generated-Image-t6vdhyt6vdhyt6vd-1.png",
         width: 1200,
         height: 630,
         alt: "Peepify - Hand Drawn Open Peeps Avatar Generator Preview",
@@ -25,7 +25,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Peepify - Hand Drawn Open Peeps Avatar Generator",
     description: "Turn your photos into beautiful hand drawn doodle caricatures in Pablo Stanley's signature Open Peeps style!",
-    images: ["https://i.ibb.co/ymrwDC6C/image.png"],
+    images: ["https://i.ibb.co/0jwn6Vk9/Gemini-Generated-Image-t6vdhyt6vdhyt6vd-1.png"],
   },
 };
 
