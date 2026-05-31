@@ -8,11 +8,7 @@ export default async function sitemap() {
       changeFrequency: "daily",
       priority: 1.0,
     },
-    {
-      url: `${baseUrl}/dashboard`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.3, // Low priority since it's passcode-protected
-    },
+    // /dashboard is deliberately excluded — it's a passcode-protected admin panel
+    // and should NOT be indexed by search engines.
   ];
 }
