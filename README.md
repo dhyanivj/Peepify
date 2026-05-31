@@ -1,96 +1,276 @@
-# 🖊️ Peepify
+<p align="center">
+  <img src="https://i.ibb.co/ymrwDC6C/image.png" alt="Peepify Banner" width="720" />
+</p>
 
-> **Handcrafted by Vijay Dhyani**  
-> *A quirky, whimsical hand-drawn avatar generator that turns your photos into caricature doodles in Pablo Stanley's signature Open Peeps illustration style!*
+<h1 align="center">🖊️ Peepify</h1>
+
+<p align="center">
+  <strong>Free AI Avatar Maker — Turn selfies into hand-drawn Open Peeps doodles</strong>
+</p>
+
+<p align="center">
+  <a href="https://peppify.dhyani.site">🌐 Live Demo</a> •
+  <a href="#-quick-start">🚀 Quick Start</a> •
+  <a href="#-the-dual-model-pipeline">🧠 How It Works</a> •
+  <a href="#-contributing">🤝 Contributing</a> •
+  <a href="LICENSE">📄 License</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js 16" />
+  <img src="https://img.shields.io/badge/Gemini_2.5-Flash-4285F4?logo=google&logoColor=white" alt="Gemini 2.5 Flash" />
+  <img src="https://img.shields.io/badge/Imagen_3-Generate-34A853?logo=google&logoColor=white" alt="Imagen 3" />
+  <img src="https://img.shields.io/badge/Cloud_Run-Deploy-4285F4?logo=google-cloud&logoColor=white" alt="Cloud Run" />
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" />
+</p>
 
 ---
 
-## 🎨 The Design & Aesthetic
-Peepify is designed completely from scratch as a **living, breathing sketch blueprint**:
-* ✍️ **Marker Typography:** Uses Google Fonts `Architects Daughter` (logos and headlines) and `Patrick Hand` (body copy & buttons) to give a handcrafted felt-tip marker style.
-* 📐 **Sketchy Uneven Borders:** Pure CSS irregular `border-radius` shaping tricks create sketchy, imperfect containers and inputs, looking like shaky hand-drawn lines on physical paper.
-* ⚡ **Tactile Interactive wiggles:** Features flat, bold solid shadows (`box-shadow: 4px 4px 0px #000`) that physically press down on click (`transform: translate(3px, 3px)`). Interactive elements playfully tilt and wiggle on hover using custom `@keyframes sketch-wiggle` animations.
-* 🖤 **Chalkboard Dark Mode:** In light mode, enjoy drawing on warm sketch paper (`#fafaf6`). Toggling the dark mode turns the app into glowing white chalk outlines on a charcoal-black chalkboard (`#1e1e1e`).
+## ✨ What Is Peepify?
+
+Peepify is an **AI-powered avatar generator** that transforms your photos into beautiful **black & white hand-drawn doodle caricatures** in [Pablo Stanley's Open Peeps](https://www.openpeeps.com/) illustration style.
+
+It uses a custom **dual-model pipeline** powered by **Google Gemini 2.5 Flash** for semantic facial analysis and **Imagen 3** for style-guided illustration generation — all running on **Vertex AI**.
+
+<p align="center">
+  <em>Upload a selfie → AI analyzes your features → Get a stunning hand-drawn avatar</em>
+</p>
 
 ---
 
-## 🧠 Under The Hood: The Dual-Model Pipeline
-Generating cartoon avatars from photographs while keeping key personal identifiers is difficult. Peepify solves this by executing a custom **two-stage Google Gen AI (Vertex AI) pipeline**:
+## 🎨 Design & Aesthetic
+
+Peepify isn't just another AI tool — it's a **living, breathing sketch blueprint** designed entirely from scratch:
+
+| Feature | Details |
+|---------|---------|
+| ✍️ **Marker Typography** | Google Fonts `Architects Daughter` (headers) + `Patrick Hand` (body) for a handcrafted felt-tip marker feel |
+| 📐 **Sketchy Borders** | Irregular `border-radius` CSS tricks create hand-drawn, imperfect containers |
+| ⚡ **Tactile Interactions** | Bold solid shadows that press-down on click, playful `sketch-wiggle` animations on hover |
+| 🖤 **Chalkboard Dark Mode** | Light mode = warm sketch paper (`#fafaf6`). Dark mode = chalk outlines on charcoal blackboard (`#1e1e1e`) |
+| 📱 **Fully Responsive** | Optimized for mobile, tablet, and desktop with smooth auto-scrolling during generation |
+
+---
+
+## 🧠 The Dual-Model Pipeline
+
+Generating cartoon avatars from photos while preserving personal features is difficult. Peepify solves this with a **two-stage Vertex AI pipeline**:
 
 ```mermaid
 graph TD
-    A[User Reference Photo] -->|1. Multimodal Parsing| B(Gemini 2.5 Flash)
-    B -->|2. Extracts Semantic Traits| C{Visual Feature Descriptor}
-    C -->|3. Hair style, facial hair, glasses, neckline, expression| D[Core Open Peeps Prompt]
-    D -->|4. Refined Character Description| E(Imagen 3)
-    A -->|5. Structural Reference| E
-    E -->|6. Guidance Scale 8.5 & Negative Prompts| F[Beautiful Caricature Doodle]
+    A["📷 User Reference Photo"] -->|"1. Multimodal Parsing"| B("🤖 Gemini 2.5 Flash")
+    B -->|"2. Extract Semantic Traits"| C{"📝 Visual Feature Descriptor"}
+    C -->|"3. Hair, glasses, expression, clothing..."| D["✏️ Core Open Peeps Prompt"]
+    D -->|"4. Refined Character Description"| E("🎨 Imagen 3")
+    A -->|"5. Structural Reference"| E
+    E -->|"6. CFG 8.5 + Negative Prompts"| F["🖊️ Hand-Drawn Doodle Avatar"]
 ```
 
-1. **Stage 1: Multimodal Semantic Analysis (`gemini-2.5-flash`)**
-   The browser-native camera or uploaded file is routed to `gemini-2.5-flash`. Gemini acts as the "eye," extracting exact features such as hair style/length, facial hair, glasses shape, clothing collar type, and mood expression, returning a comma-separated descriptor list.
-2. **Stage 2: Style-Guided Generation (`imagen-3.0-generate-002`)**
-   The descriptor list is dynamically prepended to the Pablo Stanley core style prompt. Together with strict negative prompts and a high **Guidance Scale (CFG: 8.5)**, Imagen 3 translates the structural details of the photo into the precise black & white abstract caricature.
+### Stage 1: Semantic Analysis (`gemini-2.5-flash`)
+The uploaded photo is analyzed by Gemini 2.5 Flash, which extracts precise facial traits — hair style/length, facial hair, glasses shape, clothing collar type, expression, and more — into a structured descriptor.
+
+### Stage 2: Style-Guided Generation (`imagen-3.0-generate-002`)
+The descriptor is dynamically combined with a Pablo Stanley core style prompt. With strict **negative prompts** and a high **guidance scale (CFG: 8.5)**, Imagen 3 generates a precise black & white Open Peeps caricature while preserving the person's key features.
 
 ---
 
-## 🚀 Features & Controls
-* 📷 **Device Camera Integration:** Snapshot directly from your phone or webcam using the native browser camera stream (mirrored for natural alignment) and a canvas-based grabber.
-* 📁 **Drag-and-Drop Uploader:** Fully functional drag-and-drop or file upload area.
-* 💾 **One-Click Download:** Instantly save your generated doodle with a custom filename timestamp.
-* 🌗 **Chalkboard Toggle:** Toggle seamlessly between textured sketching paper and slate blackboard themes.
+## 🚀 Quick Start
 
----
+### Prerequisites
 
-## 🛠️ Quick Start
+- **Node.js** 18+ (20+ recommended)
+- A **Google Cloud** account with:
+  - Vertex AI API enabled
+  - A Cloud Storage bucket for gallery images
+  - Application Default Credentials (ADC) configured
 
-### 1. Clone & Install Dependencies
+### 1. Clone & Install
+
 ```bash
-git clone <your-repository-url>
-cd ai-app
+git clone https://github.com/dhyanivj/Peepify.git
+cd Peepify
 npm install
 ```
 
-### 2. Configure Google Cloud ADC Credentials
-Peepify uses standard Google Cloud Application Default Credentials (ADC) to authenticate with Vertex AI. Make sure you have authorized access on your local development machine:
+### 2. Configure Google Cloud Credentials
+
+Peepify uses standard **Application Default Credentials (ADC)** for Vertex AI authentication:
+
 ```bash
-# Ensure you are logged in to GCP with application credentials
+# Login with your GCP account
 gcloud auth application-default login
 ```
-This stores your ADC credentials locally (usually at `~/.config/gcloud/application_default_credentials.json`).
 
-### 3. Setup Your Environment Variables
-Copy the template `.env.example` file to `.env.local` (Git is configured to ignore this secure file automatically):
+This stores credentials locally at `~/.config/gcloud/application_default_credentials.json`.
+
+### 3. Set Environment Variables
+
 ```bash
 cp .env.example .env.local
 ```
-Open `.env.local` and configure your GCP variables:
+
+Edit `.env.local` with your values:
+
 ```env
+# Path to your ADC credentials (local development only)
 GOOGLE_APPLICATION_CREDENTIALS=/Users/YOUR_USERNAME/.config/gcloud/application_default_credentials.json
+
+# Your GCP Project ID
 GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+
+# Vertex AI region (us-east4 recommended for Imagen 3 availability)
 GOOGLE_CLOUD_LOCATION=us-east4
+
+# Admin dashboard passcode
+ADMIN_PASSCODE=your-secure-passcode
 ```
 
-### 4. Run Development Server
+### 4. Create a Cloud Storage Bucket
+
+Peepify stores generated avatars in a GCS bucket named `{PROJECT_ID}-source-bucket`:
+
+```bash
+gsutil mb -l us-east4 gs://YOUR_PROJECT_ID-source-bucket
+```
+
+### 5. Run the Dev Server
+
 ```bash
 npm run dev
 ```
-Open **[http://localhost:3000](http://localhost:3000)** in your browser and start doodling!
+
+Open **[http://localhost:3000](http://localhost:3000)** and start creating avatars! 🎉
 
 ---
 
-## ☁️ Deployment Guidelines
+## 🗂️ Project Structure
 
-When deploying Peepify to production (Vercel, Google Cloud Run, etc.):
+```
+peepify/
+├── app/
+│   ├── api/
+│   │   ├── auth/route.js           # Admin authentication endpoint
+│   │   ├── gallery/
+│   │   │   ├── route.js            # List public gallery avatars
+│   │   │   ├── delete/route.js     # Admin: delete gallery items
+│   │   │   ├── image/[id]/route.js # Serve avatar/reference images
+│   │   │   └── save/route.js       # Save avatar to public gallery
+│   │   ├── generate/route.js       # ⭐ Core AI generation pipeline
+│   │   └── stats/route.js          # Admin analytics endpoint
+│   ├── dashboard/
+│   │   ├── layout.js               # Dashboard layout (noindex)
+│   │   └── page.js                 # Admin dashboard UI
+│   ├── favicon.ico
+│   ├── globals.css                 # Complete design system
+│   ├── layout.js                   # Root layout + SEO + JSON-LD schemas
+│   ├── page.js                     # Main app UI
+│   ├── robots.js                   # SEO robots configuration
+│   └── sitemap.js                  # SEO sitemap configuration
+├── public/                         # Static assets
+├── .env.example                    # Environment variable template
+├── Dockerfile                      # Production container config
+├── next.config.mjs                 # Next.js config + security headers
+└── package.json
+```
 
-### Authentication on Vercel
-1. Set the following environment variables in your Vercel Dashboard:
-   - `GOOGLE_CLOUD_PROJECT`: Your Google Cloud Project ID.
-   - `GOOGLE_CLOUD_LOCATION`: Your Vertex AI Location region (e.g. `us-east4`).
-   - `GOOGLE_APPLICATION_CREDENTIALS_JSON`: The raw content of your Service Account Key JSON file.
-2. Update `/app/api/generate/route.js` (or your startup configuration) to write the content of `GOOGLE_APPLICATION_CREDENTIALS_JSON` into a temporary credentials file, or initialize the SDK directly using client credentials if supported.
+---
 
-### Authentication on Google Cloud Run (Recommended)
-Since Peepify is built on Next.js, it can be containerized and deployed to **Google Cloud Run** in a few clicks:
-1. Cloud Run automatically binds the default compute Service Account credentials to your container. You **do not need** to export JSON keys or set `GOOGLE_APPLICATION_CREDENTIALS` in production!
-2. Simply deploy the container and set `GOOGLE_CLOUD_PROJECT` and `GOOGLE_CLOUD_LOCATION` as environment variables.
+## 🚀 Features
+
+| Feature | Description |
+|---------|-------------|
+| 📷 **Camera Capture** | Snap directly from your webcam or phone camera using browser-native MediaStream API |
+| 📁 **Drag & Drop Upload** | Drop a photo anywhere on the upload zone, or click to browse files |
+| 🎨 **AI Avatar Generation** | Dual-model pipeline: Gemini 2.5 Flash + Imagen 3 for accurate, stylized results |
+| 💾 **One-Click Download** | Save your generated doodle with a timestamped filename |
+| 🖼️ **Public Gallery** | Opt-in to share your avatar in the community gallery with auto-generated funny names |
+| 🌗 **Dark/Light Theme** | Seamless toggle between sketch paper and chalkboard themes |
+| 📊 **Admin Dashboard** | Passcode-protected panel with analytics, daily trends, and image management |
+| 🔒 **Security Hardened** | Input sanitization, brute-force protection delays, payload size limits |
+| 🔍 **SEO Optimized** | Rich JSON-LD schemas, Open Graph, Twitter Cards, sitemap, robots.txt |
+| 📱 **Fully Responsive** | Mobile-first design with smooth auto-scroll during avatar generation |
+
+---
+
+## ☁️ Deployment
+
+### Google Cloud Run (Recommended)
+
+Cloud Run automatically provides credentials via the default compute Service Account — **no JSON keys needed** in production.
+
+```bash
+# Deploy directly from source
+gcloud run deploy peepify \
+  --source . \
+  --region us-east4 \
+  --set-env-vars "GOOGLE_CLOUD_PROJECT=your-project-id,GOOGLE_CLOUD_LOCATION=us-east4,ADMIN_PASSCODE=your-passcode"
+```
+
+Or use the built-in deploy script:
+
+```bash
+npm run deploy
+```
+
+### Docker
+
+```bash
+# Build the image
+docker build -t peepify .
+
+# Run the container
+docker run -p 3000:3000 \
+  -e GOOGLE_CLOUD_PROJECT=your-project-id \
+  -e GOOGLE_CLOUD_LOCATION=us-east4 \
+  -e ADMIN_PASSCODE=your-passcode \
+  peepify
+```
+
+### Vercel
+
+1. Set environment variables in the Vercel Dashboard:
+   - `GOOGLE_CLOUD_PROJECT`
+   - `GOOGLE_CLOUD_LOCATION`
+   - `GOOGLE_APPLICATION_CREDENTIALS_JSON` (raw JSON content of your Service Account Key)
+   - `ADMIN_PASSCODE`
+2. You'll need to modify the SDK initialization to parse the credentials JSON from environment.
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|-----------|---------|
+| [Next.js 16](https://nextjs.org/) | Full-stack React framework |
+| [React 19](https://react.dev/) | UI library |
+| [Gemini 2.5 Flash](https://ai.google.dev/) | Multimodal image analysis |
+| [Imagen 3](https://cloud.google.com/vertex-ai/generative-ai/docs/image/generate-images) | AI image generation |
+| [Google Cloud Storage](https://cloud.google.com/storage) | Avatar and reference image storage |
+| [Google Cloud Run](https://cloud.google.com/run) | Serverless container deployment |
+| Vanilla CSS | Hand-crafted design system (no Tailwind) |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct, development workflow, and how to submit pull requests.
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **[Pablo Stanley](https://twitter.com/paborstudio)** for the incredible [Open Peeps](https://www.openpeeps.com/) illustration library that inspired this project's art style
+- **[Google DeepMind](https://deepmind.google/)** for Gemini 2.5 Flash and Imagen 3 models
+- **[Google Cloud](https://cloud.google.com/)** for Vertex AI, Cloud Run, and Cloud Storage infrastructure
+
+---
+
+<p align="center">
+  Made with ✏️ and ❤️ by <a href="https://dhyani.site">Vijay Dhyani</a>
+</p>

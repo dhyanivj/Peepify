@@ -1,7 +1,28 @@
 {
-  "name": "ai-app",
-  "version": "0.1.0",
-  "private": true,
+  "name": "peepify",
+  "version": "1.0.0",
+  "description": "Free AI Avatar Maker — Turn selfies into hand-drawn Open Peeps doodle illustrations using Gemini 2.5 Flash and Imagen 3",
+  "author": "Vijay Dhyani <https://dhyani.site>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhyanivj/Peepify.git"
+  },
+  "homepage": "https://peppify.dhyani.site",
+  "bugs": {
+    "url": "https://github.com/dhyanivj/Peepify/issues"
+  },
+  "keywords": [
+    "ai-avatar",
+    "avatar-maker",
+    "open-peeps",
+    "doodle-generator",
+    "gemini",
+    "imagen",
+    "vertex-ai",
+    "nextjs",
+    "caricature"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
