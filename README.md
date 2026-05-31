@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.ibb.co/ymrwDC6C/image.png" alt="Peepify Banner" width="720" />
+  <img src="https://i.ibb.co/0pxgkLCL/image.png" alt="Peepify Banner" width="1080" />
 </p>
 
 <h1 align="center">🖊️ Peepify</h1>
