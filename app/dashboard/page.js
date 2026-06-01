@@ -22,8 +22,8 @@ export default function Dashboard() {
       setTheme(savedTheme);
       document.documentElement.setAttribute("data-theme", savedTheme);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = prefersDark ? "dark" : "light";
+      // Default to light mode as requested by the user, ignoring system dark preference
+      const initialTheme = "light";
       setTheme(initialTheme);
       document.documentElement.setAttribute("data-theme", initialTheme);
     }

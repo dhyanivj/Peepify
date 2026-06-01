@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
   try {
     const { id, passcode } = await request.json();
-    const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
+    const correctPasscode = process.env.ADMIN_PASSCODE;
 
     // Verify passcode for secure deletion authorization
     if (passcode !== correctPasscode) {
@@ -47,7 +47,7 @@ export async function POST(request) {
     ]);
 
     console.log(`Successfully deleted gallery pair with ID: ${id}`);
-    
+
     return NextResponse.json({
       success: true,
       message: `Image pair with ID ${id} deleted successfully.`,

@@ -40,8 +40,8 @@ export default function Home() {
       setTheme(savedTheme);
       document.documentElement.setAttribute("data-theme", savedTheme);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = prefersDark ? "dark" : "light";
+      // Default to light mode as requested by the user, ignoring system dark preference
+      const initialTheme = "light";
       setTheme(initialTheme);
       document.documentElement.setAttribute("data-theme", initialTheme);
     }
@@ -329,7 +329,7 @@ export default function Home() {
         {/* Left Column: Hand-drawn Input Card */}
         <section className="sketch-card" style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           <div>
-            <h2 style={{ fontSize: "1.7rem", marginBottom: "8px", borderBottom: "2px solid var(--color-ink)", paddingBottom: "6px" }}>Configure Avatar</h2>
+            <h2 style={{ fontSize: "1.3rem", marginBottom: "8px", borderBottom: "2px solid var(--color-ink)", paddingBottom: "6px" }}>Create Your Sketchy Caricature</h2>
             {/* <p style={{ fontSize: "1.1rem", color: "var(--color-ink-variant)", marginTop: "10px" }}>
               Upload a reference photo. Our system will analyze your facial traits using Gemini 2.5 Flash and draw a beautiful B&W Open Peeps character using Imagen 3!
             </p> */}
@@ -340,7 +340,7 @@ export default function Home() {
             {/* Image Upload Area */}
             <div>
               <label style={{ fontSize: "1.2rem", fontWeight: "bold", display: "block", marginBottom: "10px", fontFamily: "var(--font-header)" }}>
-                Upload/capture Reference Photo
+                Upload / capture your Photo
               </label>
 
               {isCameraActive ? (

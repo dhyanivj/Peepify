@@ -20,7 +20,7 @@ export async function GET(request, { params }) {
     // Secure original reference photos: only authorize requests with the correct passcode query param
     if (type === 'ref') {
       const passcode = searchParams.get('passcode');
-      const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
+      const correctPasscode = process.env.ADMIN_PASSCODE;
       if (passcode !== correctPasscode) {
         // Artificial delay to mitigate high-speed brute-force attacks
         await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
     });
     const bucketName = `${project}-source-bucket`;
     const bucket = storage.bucket(bucketName);
-    
+
     // File structure is: 'gallery/{id}-ref.jpg' or 'gallery/{id}-avatar.jpg'
     const fileName = `gallery/${id}-${type}.jpg`;
     const file = bucket.file(fileName);

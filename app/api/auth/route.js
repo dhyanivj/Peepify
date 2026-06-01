@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
   try {
     const { passcode } = await request.json();
-    const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
+    const correctPasscode = process.env.ADMIN_PASSCODE;
 
     if (passcode === correctPasscode) {
       return NextResponse.json({

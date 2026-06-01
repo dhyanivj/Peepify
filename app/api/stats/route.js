@@ -6,7 +6,7 @@ export async function GET(request) {
     // Authenticate using Authorization Bearer token matching ADMIN_PASSCODE
     const authHeader = request.headers.get('authorization');
     const passcode = authHeader?.split(' ')[1];
-    const correctPasscode = process.env.ADMIN_PASSCODE || 'peepify-admin';
+    const correctPasscode = process.env.ADMIN_PASSCODE;
 
     if (passcode !== correctPasscode) {
       // Artificial delay to mitigate high-speed brute-force attacks
@@ -83,7 +83,7 @@ export async function GET(request) {
 
     // Sort complete moderation image list newest first
     parsedImages.sort((a, b) => b.created - a.created);
-    
+
     // Map back for compact transmission
     const images = parsedImages.map(img => ({
       id: img.id,
